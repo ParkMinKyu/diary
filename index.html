@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>My Web Diary</title>
+<link rel='stylesheet' href='fullcalendar/dist/fullcalendar.css' />
+<link rel='stylesheet' href='bootstrap/dist/css/bootstrap.min.css' />
+<script src='jquery/dist/jquery.min.js'></script>
+<script src='moment/min/moment.min.js'></script>
+<script src='fullcalendar/dist/fullcalendar.js'></script>
+<script type="text/javascript">
+$(document).ready(function() {
+
+    // page is now ready, initialize the calendar...
+
+	$('#calendar').fullCalendar({
+		themeSystem: 'bootstrap3',
+		defaultView: 'agendaWeek',
+		editable: true, // enable draggable events
+		weekNumbers: true,
+		weekNumbersWithinDays: true,
+		header: {
+			left: 'today prev,next',
+			center: 'title',
+			right: 'agendaWeek,month,listWeek'
+			
+		},
+		views: {
+	        month: { // name of view
+	            titleFormat: 'YYYY년 MM월'
+	            // other view-specific options here
+	        },
+	        agendaWeek: {
+	        	titleFormat: 'YYYY년 MM월 DD'
+	        },
+	        listWeek: {
+	        	titleFormat: 'YYYY년 MM월 DD'
+	        }
+	    },
+		bootstrapGlyphicons: {
+		    close: 'glyphicon-remove',
+		    prev: 'glyphicon-chevron-left',
+		    next: 'glyphicon-chevron-right',
+		    prevYear: 'glyphicon-backward',
+		    nextYear: 'glyphicon-forward'
+		},
+		events: [
+			{ id: '1', resourceId: 'b', start: '2017-10-07T02:00:00', end: '2017-10-07T07:00:00', title: 'event 1' },
+			{ id: '2', resourceId: 'c', start: '2017-10-07T05:00:00', end: '2017-10-07T22:00:00', title: 'event 2' },
+			{ id: '3', resourceId: 'd', start: '2017-10-06', end: '2017-10-08', title: 'event 3' },
+			{ id: '4', resourceId: 'e', start: '2017-10-07T03:00:00', end: '2017-10-07T08:00:00', title: 'event 4' },
+			{ id: '5', resourceId: 'f', start: '2017-10-07T00:30:00', end: '2017-10-07T02:30:00', title: 'event 5' }
+		]
+	});
+
+});
+</script>
+</head>
+<body>
+<div id="calendar"></div>
+</body>
+</html>
