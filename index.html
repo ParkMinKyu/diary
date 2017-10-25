@@ -5,36 +5,47 @@
 <title>My Web Diary</title>
 <link rel='stylesheet' href='fullcalendar/dist/fullcalendar.css' />
 <link rel='stylesheet' href='bootstrap/dist/css/bootstrap.min.css' />
+<style type="text/css">
+.git-group{
+	text-align: center;
+}
+</style>
 <script src='jquery/dist/jquery.min.js'></script>
 <script src='moment/min/moment.min.js'></script>
+<script src='bootstrap/dist/js/bootstrap.min.js'></script>
 <script src='fullcalendar/dist/fullcalendar.js'></script>
+<script src='js/IndexedDB.js'></script>
 <script type="text/javascript">
 $(document).ready(function() {
-
-    // page is now ready, initialize the calendar...
-
+	
+	IndexedDB.checkDB();
+	
+	IndexedDB.createSchema('id');
+	
 	$('#calendar').fullCalendar({
 		themeSystem: 'bootstrap3',
 		defaultView: 'agendaWeek',
 		editable: true, // enable draggable events
 		weekNumbers: true,
+		timeFormat: 'HH:mm',
 		weekNumbersWithinDays: true,
+		allDayText:'하루 종일',
+		slotDuration:'00:15',
+		slotLabelFormat: 'HH:mm',
 		header: {
 			left: 'today prev,next',
 			center: 'title',
 			right: 'agendaWeek,month,listWeek'
-			
 		},
 		views: {
 	        month: { // name of view
 	            titleFormat: 'YYYY년 MM월'
-	            // other view-specific options here
 	        },
 	        agendaWeek: {
-	        	titleFormat: 'YYYY년 MM월 DD'
+	        	titleFormat: 'YYYY년 MM월 DD일'
 	        },
 	        listWeek: {
-	        	titleFormat: 'YYYY년 MM월 DD'
+	        	titleFormat: 'YYYY년 MM월 DD일'
 	        }
 	    },
 		bootstrapGlyphicons: {
@@ -44,19 +55,165 @@ $(document).ready(function() {
 		    prevYear: 'glyphicon-backward',
 		    nextYear: 'glyphicon-forward'
 		},
-		events: [
-			{ id: '1', resourceId: 'b', start: '2017-10-07T02:00:00', end: '2017-10-07T07:00:00', title: 'event 1' },
-			{ id: '2', resourceId: 'c', start: '2017-10-07T05:00:00', end: '2017-10-07T22:00:00', title: 'event 2' },
-			{ id: '3', resourceId: 'd', start: '2017-10-06', end: '2017-10-08', title: 'event 3' },
-			{ id: '4', resourceId: 'e', start: '2017-10-07T03:00:00', end: '2017-10-07T08:00:00', title: 'event 4' },
-			{ id: '5', resourceId: 'f', start: '2017-10-07T00:30:00', end: '2017-10-07T02:30:00', title: 'event 5' }
-		]
+		events:function(start, end, timezone, callback){
+			IndexedDB.selectAll(function(data){
+				var events = [];
+				for(var i = 0 ; i < data.length ; i ++){
+					events.push(data[i]);
+				}
+				
+				callback(events);
+			});			
+		},
+		dayClick: function(date, jsEvent, view) {
+			$('#start').val(date.format('YYYY-MM-DD HH:mm'))
+			$('#end').val(date.format('YYYY-MM-DD HH:mm'))
+			$('#writeModal').modal('show')
+		},
+        eventClick: function(calEvent, jsEvent, view) {
+        	$('#viewModalBody').text(calEvent.title);
+        	$('#id').val(calEvent.id);
+        	$('#eventDate').text(calEvent.start.format('YYYY년 MM월 DD일 HH:mm'));
+        	if( calEvent.end != null && (calEvent.start.format('YYYY년 MM월 DD일 HH:mm') != calEvent.end.format('YYYY년 MM월 DD일 HH:mm')) ){
+        		$('#eventDate').text($('#eventDate').text() + ' ~ ' + calEvent.end.format('YYYY년 MM월 DD일 HH:mm'));
+        	}
+        	$('#viewModal').modal('show')
+        },
+        eventResize: function(event, delta, revertFunc) {
+           	event = mappingEvent(event);
+           	IndexedDB.insert(event,function(data){
+   				if(data == 1){
+   					console.log(event);
+   				}
+   			});
+        },
+        eventDrop: function(event, delta, revertFunc) {
+        	event = mappingEvent(event);
+           	IndexedDB.insert(event,function(data){
+   				if(data == 1){
+   					console.log(event);
+   				}
+   			});
+        }
 	});
+	
+	function mappingEvent(event){
+		return { id : event.id, start : event.start.format('YYYY-MM-DD HH:mm'), end : event.end ? event.end.format('YYYY-MM-DD HH:mm') : null, title:event.title, allDay: event.allDay};
+	}
+	
+	$('#saveBtn').click(function(){
+		
+		if($('#title').val() == ''){
+			alert('title reqierd');
+			return;
+		}
 
+		IndexedDB.selectMaxValue('keyIndex',function(data){
+			var id = 0;
+			if(data)
+				id = data.id + 1;
+			
+			var event = {id:id, start:$('#start').val(), title: $('#title').val(), allDay : $('#allDay').is(":checked") };
+			
+			IndexedDB.insert(event,function(data){
+				if(data == 1){
+					$('#calendar').fullCalendar('addEventSource', [event]);
+				}
+			});
+				
+			$('#writeModal').modal('hide');
+		});
+	});
+	
+	$('#deleteBtn').click(function(){
+		if(confirm("Delete Okay?")){
+			IndexedDB.delete(parseInt($('#id').val(),10),function(data){
+				if(data == 1){
+					$('#calendar').fullCalendar( 'removeEvents' , $('#id').val())
+					$('#viewModal').modal('hide')
+				}
+			});
+		}
+	});
 });
 </script>
 </head>
 <body>
+<div class="container">
 <div id="calendar"></div>
+<nav class="navbar navbar-default navbar-fixed-bottom" style="min-height: 0px;">
+	<div class="container-fluid">
+		<div class="center-block git-group">
+			<div>
+				<iframe src="https://ghbtns.com/github-btn.html?user=ParkMinKyu&amp;repo=diary&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="75px" height="20px"></iframe>
+				<iframe src="https://ghbtns.com/github-btn.html?user=ParkMinKyu&amp;repo=diary&amp;type=fork&amp;count=true" frameborder="0" scrolling="0" width="75px" height="20px"></iframe>
+				<iframe src="https://ghbtns.com/github-btn.html?user=ParkMinKyu&amp;type=follow&amp;count=true" frameborder="0" scrolling="0" width="165px" height="20px"></iframe>
+			</div>
+		</div>
+	</div>
+</nav>
+
+<!-- Event View Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="viewModalLabel">
+        	<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> <span id="eventDate"></span><br>
+        	<input type="hidden" id="id"/>
+        </h4>
+      </div>
+      <div class="modal-body" id="viewModalBody">
+      </div>
+      <div class="modal-footer">
+      	<button type="button" class="btn btn-warning" id="deleteBtn">Delete</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Event Write Modal -->
+<div class="modal fade" id="writeModal" tabindex="-1" role="dialog" aria-labelledby="writeModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">
+        	Diary Event Add
+        </h4>
+      </div>
+      <div class="modal-body">
+	    <label class="sr-only" for="title">title</label>
+	    <div class="input-group">
+	      <div class="input-group-addon"><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span></div>
+	      <input type="text" class="form-control" id="title" placeholder="title">
+	    </div>
+	    <br>
+	    <label class="sr-only" for="start">start</label>
+	    <div class="input-group">
+	      <div class="input-group-addon"><span class="glyphicon glyphicon glyphicon-calendar" aria-hidden="true"></span></div>
+	      <input type="text" class="form-control" id="start" placeholder="start">
+	    </div>
+	    <br>
+	    <label class="sr-only" for="end">end</label>
+	    <div class="input-group">
+	      <div class="input-group-addon"><span class="glyphicon glyphicon glyphicon-calendar" aria-hidden="true"></span></div>
+	      <input type="text" class="form-control" id="end" placeholder="end">
+	    </div>
+	    <label class="checkbox-inline">
+		  <input type="checkbox" id="allDay" value="allDay" checked="checked">하루 종일
+		</label>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" class="btn btn-warning" id="saveBtn">Save</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
 </body>
 </html>
