@@ -87,8 +87,13 @@ $(document).ready(function() {
 			});			
 		},
 		dayClick: function(date, jsEvent, view) {
-			$('#start').val(date.format('YYYY-MM-DD HH:mm'))
-			$('#end').val(date.format('YYYY-MM-DD HH:mm'))
+			$('#start').val(date.format('YYYY-MM-DD'))
+			$('#shour').val(date.format('HH'))
+			$('#smin').val(date.format('mm'))
+			$('#end').val(date.format('YYYY-MM-DD'))
+			$('#ehour').val(date.format('HH'))
+			$('#emin').val(date.format('mm'))
+			$('#title').val("");
 			$('#writeModal').modal('show')
 		},
         eventClick: function(calEvent, jsEvent, view) {
@@ -134,7 +139,11 @@ $(document).ready(function() {
 			if(data)
 				id = data.id + 1;
 			
-			var event = {id:id, start:$('#start').val(), title: $('#title').val(), allDay : $('#allDay').is(":checked") };
+			
+			
+			var start = $('#start').val() + " " + $('#shour').val() + ":" + $('#smin').val();   
+			var end = $('#end').val() + " " + $('#ehour').val() + ":" + $('#emin').val();
+			var event = {id:id, start: start, end: (end == start) || $('#allDay').is(":checked") ? null : end, title: $('#title').val(), allDay : $('#allDay').is(":checked") };
 			
 			IndexedDB.insert(event,function(data){
 				if(data == 1){
@@ -213,21 +222,103 @@ $(document).ready(function() {
 	      <input type="text" class="form-control" id="title" placeholder="title">
 	    </div>
 	    <br>
-	    <label class="sr-only" for="start">start</label>
 	    <div class="input-group">
-	      <div class="input-group-addon"><span class="glyphicon glyphicon glyphicon-calendar" aria-hidden="true"></span></div>
-	      <input type="text" class="form-control" id="start" placeholder="start">
+	      <div class="input-group-addon" style="vertical-align: super;"><span class="glyphicon glyphicon-time" aria-hidden="true"></span></div>
+	      <input type="checkbox" id="allDay" value="allDay"><label for="allDay" style="vertical-align: middle">하루 종일</label>
+	    </div>
+		<br>
+	    <div class="form-inline">
+		    <label class="sr-only" for="start">start</label>
+		    <div class="input-group">
+		      <div class="input-group-addon"><span class="glyphicon glyphicon glyphicon-calendar" aria-hidden="true"></span></div>
+		      <input type="text" class="form-control" id="start" placeholder="start">
+		    </div>
+		    <label class="sr-only" for="shour">shour</label>
+		    <div class="input-group">
+		      <select id="shour" class="form-control">
+		      	<option value="00">00
+		      	<option value="01">01
+		      	<option value="02">02
+		      	<option value="03">03
+		      	<option value="04">04
+		      	<option value="05">05
+		      	<option value="06">06
+		      	<option value="07">07
+		      	<option value="08">08
+		      	<option value="09">09
+		      	<option value="10">10
+		      	<option value="11">11
+		      	<option value="12">12
+		      	<option value="13">13
+		      	<option value="14">14
+		      	<option value="15">15
+		      	<option value="16">16
+		      	<option value="17">17
+		      	<option value="18">18
+		      	<option value="19">19
+		      	<option value="20">20
+		      	<option value="21">21
+		      	<option value="22">22
+		      	<option value="23">23
+		      </select>
+		    </div>
+		    <label class="sr-only" for="smin">smin</label>
+		    <div class="input-group">
+		      <select id="smin" class="form-control">
+		      	<option value="00">00
+		      	<option value="15">15
+		      	<option value="30">30
+		      	<option value="45">45
+		      </select>
+		    </div>
 	    </div>
 	    <br>
-	    <label class="sr-only" for="end">end</label>
-	    <div class="input-group">
-	      <div class="input-group-addon"><span class="glyphicon glyphicon glyphicon-calendar" aria-hidden="true"></span></div>
-	      <input type="text" class="form-control" id="end" placeholder="end">
-	    </div>
-	    <label class="checkbox-inline">
-		  <input type="checkbox" id="allDay" value="allDay" checked="checked">하루 종일
-		</label>
+	    <div class="form-inline">
+		    <label class="sr-only" for="end">end</label>
+		    <div class="input-group">
+		      <div class="input-group-addon"><span class="glyphicon glyphicon glyphicon-calendar" aria-hidden="true"></span></div>
+		      <input type="text" class="form-control" id="end" placeholder="end">
+		    </div>
+		    <label class="sr-only" for="ehour">ehour</label>
+	    	<div class="input-group">
+		      <select id="ehour" class="form-control">
+		      	<option value="00">00
+		      	<option value="01">01
+		      	<option value="02">02
+		      	<option value="03">03
+		      	<option value="04">04
+		      	<option value="05">05
+		      	<option value="06">06
+		      	<option value="07">07
+		      	<option value="08">08
+		      	<option value="09">09
+		      	<option value="10">10
+		      	<option value="11">11
+		      	<option value="12">12
+		      	<option value="13">13
+		      	<option value="14">14
+		      	<option value="15">15
+		      	<option value="16">16
+		      	<option value="17">17
+		      	<option value="18">18
+		      	<option value="19">19
+		      	<option value="20">20
+		      	<option value="21">21
+		      	<option value="22">22
+		      	<option value="23">23
+		      </select>
+		    </div>
+		    <label class="sr-only" for="emin">emin</label>
+		    <div class="input-group">
+		      <select id="emin" class="form-control">
+		      	<option value="00">00
+		      	<option value="15">15
+		      	<option value="30">30
+		      	<option value="45">45
+		      </select>
+		    </div>
       </div>
+      <br>
       <div class="modal-footer">
       	<button type="button" class="btn btn-warning" id="saveBtn">Save</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
