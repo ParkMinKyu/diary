@@ -124,7 +124,7 @@ $(document).ready(function() {
 	});
 	
 	function mappingEvent(event){
-		return { id : event.id, start : event.start.format('YYYY-MM-DD HH:mm'), end : event.end ? event.end.format('YYYY-MM-DD HH:mm') : null, title:event.title, allDay: event.allDay};
+		return { id : event.id, start : event.start.format('YYYY-MM-DD HH:mm'), end : event.end ? event.end.format('YYYY-MM-DD HH:mm') : null, title:event.title, allDay: event.allDay, color:event.color};
 	}
 	
 	$('#saveBtn').click(function(){
@@ -139,11 +139,11 @@ $(document).ready(function() {
 			if(data)
 				id = data.id + 1;
 			
-			
-			
 			var start = $('#start').val() + " " + $('#shour').val() + ":" + $('#smin').val();   
 			var end = $('#end').val() + " " + $('#ehour').val() + ":" + $('#emin').val();
-			var event = {id:id, start: start, end: (end == start) || $('#allDay').is(":checked") ? null : end, title: $('#title').val(), allDay : $('#allDay').is(":checked") };
+			var color = $('#selectColor').css('background-color');
+			
+			var event = {id:id, start: start, end: (end == start) || $('#allDay').is(":checked") ? null : end, title: $('#title').val(), allDay : $('#allDay').is(":checked"), color:color };
 			
 			IndexedDB.insert(event,function(data){
 				if(data == 1){
@@ -164,6 +164,10 @@ $(document).ready(function() {
 				}
 			});
 		}
+	});
+	
+	$('#default, #red, #navy, #gray, #purple, #orange').click(function(){
+		$('#selectColor').css('background-color',$(this).css('background-color'));
 	});
 });
 </script>
@@ -317,6 +321,24 @@ $(document).ready(function() {
 		      	<option value="45">45
 		      </select>
 		    </div>
+      </div>
+      <br>
+      <div class="row">
+      	<div class="col-xs-4">
+      		<span class="glyphicon glyphicon-eye-open"> 배경색 -> </span>
+      	</div>
+      	<div class="col-xs-8" id="selectColor" style="background-color: #3a87ad; height: 30px;"></div>
+      </div>
+      <br>
+      <div class="row">
+      	<div class="col-xs-4" id="default" data-color="#3a87ad" style="background-color: #3a87ad; height: 30px;">Click</div>
+      	<div class="col-xs-4" id="gray" data-color="gray" style="background-color: gray; height: 30px;">Click</div>
+      	<div class="col-xs-4" id="navy" data-color="navy" style="background-color: navy; height: 30px;">Click</div>
+      </div>
+      <div class="row">
+      	<div class="col-xs-4" id="red" data-color="red" style="background-color: red; height: 30px;">Click</div>
+      	<div class="col-xs-4" id="orange" data-color="orange" style="background-color: orange; height: 30px;">Click</div>
+      	<div class="col-xs-4" id="purple" data-color="purple" style="background-color: purple; height: 30px;">Click</div>
       </div>
       <br>
       <div class="modal-footer">
