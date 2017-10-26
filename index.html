@@ -143,11 +143,11 @@ $(document).ready(function() {
 			var end = $('#end').val() + " " + $('#ehour').val() + ":" + $('#emin').val();
 			var color = $('#selectColor').css('background-color');
 			
-			var event = {id:id, start: start, end: (end == start) || $('#allDay').is(":checked") ? null : end, title: $('#title').val(), allDay : $('#allDay').is(":checked"), color:color };
+			var event = {id:id, start: start, end: (end == start) ? null : end, title: $('#title').val(), allDay : $('#allDay').is(":checked"), color:color };
 			
 			IndexedDB.insert(event,function(data){
 				if(data == 1){
-					$('#calendar').fullCalendar('addEventSource', [event]);
+					$('#calendar').fullCalendar( 'refetchEvents' );
 				}
 			});
 				
