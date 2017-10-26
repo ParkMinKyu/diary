@@ -139,9 +139,16 @@ $(document).ready(function() {
 			if(data)
 				id = data.id + 1;
 			
-			var start = $('#start').val() + " " + $('#shour').val() + ":" + $('#smin').val();   
-			var end = $('#end').val() + " " + $('#ehour').val() + ":" + $('#emin').val();
+			var start = $('#start').val()
+			var end = $('#end').val();
 			var color = $('#selectColor').css('background-color');
+			
+			if(!$('#allDay').is(":checked")){
+				start += " " + $('#shour').val() + ":" + $('#smin').val();
+				end += " " + $('#ehour').val() + ":" + $('#emin').val()	
+			}else{
+				end = moment($('#end').val()).add(1,'days').format('YYYY-MM-DD');
+			}
 			
 			var event = {id:id, start: start, end: (end == start) ? null : end, title: $('#title').val(), allDay : $('#allDay').is(":checked"), color:color };
 			
