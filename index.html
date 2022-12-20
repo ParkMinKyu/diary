@@ -87,6 +87,7 @@ $(document).ready(function() {
 			});			
 		},
 		dayClick: function(date, jsEvent, view) {
+			$('#mode').val('write')
 			$('#start').val(date.format('YYYY-MM-DD'))
 			$('#shour').val(date.format('HH'))
 			$('#smin').val(date.format('mm'))
@@ -136,8 +137,12 @@ $(document).ready(function() {
 
 		IndexedDB.selectMaxValue('keyIndex',function(data){
 			var id = 0;
+			var mode = $('#mode').val();
 			if(data)
 				id = data.id + 1;
+
+			if(mode == 'edit')
+				id = parseInt($('#id').val(),10);
 			
 			var start = $('#start').val()
 			var end = $('#end').val();
@@ -172,7 +177,42 @@ $(document).ready(function() {
 			});
 		}
 	});
-	
+
+	$('#editBtn').click(function(){
+		$('#mode').val('edit')
+		var id = parseInt($('#id').val(),10);
+		var calObj = {};
+		IndexedDB.selectOne(id,function(obj){
+			calObj = obj;
+			//var event = {id:id, start: start, end: (end == start) ? null : end, title: $('#title').val(), allDay : $('#allDay').is(":checked"), color:color };
+
+			var start = calObj.start.substr(0,10)
+			var shour = calObj.start.substr(11,2) ? calObj.start.substr(11,2) : '00'
+			var smin = calObj.start.substr(14,2) ? calObj.start.substr(14,2) : '00'
+			var end = calObj.end ? calObj.end.substr(0,10) : start
+			var ehour = calObj.end && calObj.end.substr(11,2) ? calObj.end.substr(11,2) : shour
+			var emin = calObj.end && calObj.end.substr(14,2) ? calObj.end.substr(14,2) : smin
+			var color = $('#selectColor').css('background-color', calObj.color);
+
+			if(calObj.allDay){
+				end = moment(end).add(-1,'days').format('YYYY-MM-DD');
+			}
+
+			$('#title').val(calObj.title);
+			$('#start').val(start);
+			$('#end').val(end);
+			$('#shour').val(shour)
+			$('#smin').val(smin);
+			$('#ehour').val(ehour)
+			$('#emin').val(emin)
+			$('#allDay').prop("checked",calObj.allDay);
+			$('#color').val(calObj.color);
+
+			$('#viewModal').modal('hide');
+			$('#writeModal').modal('show');
+		});
+	});
+
 	$('#default, #red, #navy, #gray, #purple, #orange').click(function(){
 		$('#selectColor').css('background-color',$(this).css('background-color'));
 	});
@@ -204,12 +244,14 @@ $(document).ready(function() {
         <h4 class="modal-title" id="viewModalLabel">
         	<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> <span id="eventDate"></span><br>
         	<input type="hidden" id="id"/>
+			<input type="hidden" id="mode"/>
         </h4>
       </div>
       <div class="modal-body" id="viewModalBody">
       </div>
       <div class="modal-footer">
       	<button type="button" class="btn btn-warning" id="deleteBtn">Delete</button>
+		  <button type="button" class="btn btn-primary" id="editBtn">Edit</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
